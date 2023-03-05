@@ -34,7 +34,7 @@ def collect_call_request_data(request_function):
         except json.decoder.JSONDecodeError:
             call_object.response_json: dict = {"error": "it is not json format or there is no response object"}
         call_object.status_code = call_object.response.status_code
-        call_object.headers = call_object.response.headers
+        call_object.response_headers = call_object.response.headers
         call_object.url = call_object.response.url
         return call_object
 
@@ -43,7 +43,7 @@ def collect_call_request_data(request_function):
 
 async def collect_async_data(resp: object, request: dict):
     result: BackendResultDatas = copy.deepcopy(BackendResultDatas())
-    result.headers = resp.headers
+    result.response_headers = resp.headers
     result.status_code = resp.status
     result.request = request
     result.url = str(resp.url)
@@ -64,7 +64,7 @@ class Calls(HttpHeaders):
         self.request: object = None
         self.response_json: dict = {}
         self.status_code: int = 0
-        self.headers: dict = {}
+        self.response_headers: dict = {}
         self.url: str = ""
 
     @collect_call_request_data

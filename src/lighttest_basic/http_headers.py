@@ -56,10 +56,12 @@ class HttpHeaders:
         """
         self.token = new_token
         if update_headers:
+            if self.headers is None:
+                self.headers = dict()
             self.headers.update({"Authorization": f'Bearer {self.token}'})
 
     def reset_headers(self) -> dict:
-        HttpHeaders.headers = {"Content-Type": "application/json",
+        self.headers = {"Content-Type": "application/json",
                                "Accept": "application/json"
                                }
 
