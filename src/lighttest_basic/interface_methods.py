@@ -728,7 +728,6 @@ class DropDownMethods:
 
         if xpath is None:
             xpath = self._create_field_xpath(identifier)
-            self.driver.find_element(By.CSS_SELECTOR, )
 
         list_element = self._find_combobox_list_element(xpath, data)
         list_element.click()
