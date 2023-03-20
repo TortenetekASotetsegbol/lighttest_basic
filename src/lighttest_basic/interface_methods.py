@@ -456,7 +456,9 @@ class ValueValidation(FieldMethods):
        """
 
         chosen_expected_condition = None
-
+        result: bool = False
+        current_value_of_implicit_wait: float = self.driver.timeouts.implicit_wait
+        self.driver.implicitly_wait(0)
         if expected_condition is not None:
             chosen_expected_condition = expected_condition
         elif webelement_is_visible:
@@ -469,14 +471,20 @@ class ValueValidation(FieldMethods):
 
         try:
             if not until_not:
-                return WebDriverWait(driver=self.driver, timeout=timeout_in_seconds).until(chosen_expected_condition)
+                result = WebDriverWait(driver=self.driver, timeout=timeout_in_seconds).until(chosen_expected_condition)
+                result = True
 
             elif until_not:
-                return WebDriverWait(driver=self.driver, timeout=timeout_in_seconds).until_not(
+                result = WebDriverWait(driver=self.driver, timeout=timeout_in_seconds).until_not(
                     chosen_expected_condition)
+                result = True
 
         except TimeoutException:
-            return False
+            self.driver.implicitly_wait(current_value_of_implicit_wait)
+            result = False
+        finally:
+            self.driver.implicitly_wait(current_value_of_implicit_wait)
+            return result
 
     def get_css_attribute(self, xpath: str, attribute: str) -> str:
         """
