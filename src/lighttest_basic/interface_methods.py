@@ -27,7 +27,7 @@ fake = Faker()
 
 
 class CaseManagement:
-    def __init__(self,  driver: Chrome, screenshots_container_directory: str = "C:\Screenshots"):
+    def __init__(self, driver: Chrome, screenshots_container_directory: str = "C:\Screenshots"):
         self.local_click_xpaths: set[str] = {}
         self.local_field_xpaths: set[str] = {}
         self.teststep_count = 0
@@ -36,7 +36,7 @@ class CaseManagement:
         self.screenshots_container_directory: str = screenshots_container_directory
         self.steps_of_reproduction: dict = {}
         self.casebreak = False
-        self.combobox_parent_finding_method_by_xpaths: set[str] = {}
+        self.combobox_list_xpaths: set[str] = {}
         self.error_in_case = False
         self.driver = driver
         self.action_driver = ActionChains(self.driver)
@@ -46,7 +46,7 @@ class CaseManagement:
         @param: global_combobox_parent_finding_method_by_xpath the value of this param determinate
                 how to find combobox parent webelement
         """
-        self.combobox_parent_finding_method_by_xpaths = set(xpaths)
+        self.combobox_list_xpaths = set(xpaths)
 
     @staticmethod
     def set_global_field_xpath(*xpaths: str):
@@ -127,7 +127,7 @@ class CaseManagement:
         '''
         field_xpath : it set the global_combobox_parent_finding_method_by_xpath class variable
         '''
-        MiUsIn.global_combobox_parent_finding_method_by_xpaths = set(xpaths)
+        MiUsIn.global_combobox_list_xpaths = set(xpaths)
 
 
 @unique
@@ -668,50 +668,42 @@ class ValueValidation(FieldMethods):
 
 
 class DropDownMethods:
-    global_combobox_parent_finding_method_by_xpaths: set[str] = {}
+    global_combobox_list_xpaths: set[str] = {}
 
-    def _find_combobox_list_element(self, input_field_xpath: str, dropdown_element_text: str):
-        if len(self.combobox_parent_finding_method_by_xpaths) > 0:
+    def _find_combobox_list_element(self, listelement_xpaths: set[str], dropdown_element_text: str):
+        if len(listelement_xpaths) > 0:
+            parent_webelement_xpaths: set[str] = listelement_xpaths
+        elif len(self.combobox_parent_finding_method_by_xpaths) > 0:
             parent_webelement_xpaths: set = self.combobox_parent_finding_method_by_xpaths
-        elif len(MiUsIn.global_combobox_parent_finding_method_by_xpaths) > 0:
-            parent_webelement_xpaths: set = MiUsIn.global_combobox_parent_finding_method_by_xpaths
+        elif len(MiUsIn.global_combobox_list_xpaths) > 0:
+            parent_webelement_xpaths: set = MiUsIn.global_combobox_list_xpaths
 
-        parent_webelement = self.driver.find_element(by=By.XPATH,
-                                                     value=self._combobox_parent_xpath(input_field_xpath,
-                                                                                       parent_webelement_xpaths))
-        list_element = parent_webelement.find_element(by=By.XPATH,
-                                                      value=InnerStatics.IN_PARENT_FIND_LABEL_BY_PARAM.value.replace(
-                                                          InnerStatics.PARAM.value, dropdown_element_text))
+        premade_xpath: str = "|".join(parent_webelement_xpaths)
+        list_element = self.driver.find_element(by=By.XPATH, value=premade_xpath.replace(InnerStatics.PARAM.value,
+                                                                                         dropdown_element_text))
 
         return list_element
 
-    def select_combobox_element(self, xpath: str, data: str = "") -> WebElement:
+    def select_combobox_element(self, input_field_xpath: str, list_element_xpaths: set[str],
+                                data: str = "") -> WebElement:
         """
         click on a combobox elements.
 
-
-        Special Keywords:
-            critical_step: if true and this case-step fail, the remain case-steps will be skipped
-
-            step_positivity: determine what is the expected outcome of the step. If positive, it must be successful
-
-            step_description: optional. You can write a description, what about this step.
-
-            skip: if true, the method return without any action.
-
         Arguments:
-            xpath: the combobox's input-field xpath expression
-            data: an element in the dropdown you want to click
+            input_field_xpath: the combobox's input-field xpath expression
+            data: the element in the dropdown you want to click
+            list_element_xpaths: the list element's xpath. It can be a parametric representation.
         """
 
-        self.fill_field(xpath=xpath, data=data)
+        self.fill_field(xpath=input_field_xpath, data=data)
 
-        list_element = self._find_combobox_list_element(xpath, data)
+        list_element: WebElement = self._find_combobox_list_element(list_element_xpaths, data)
         list_element.click()
 
         return list_element
 
-    def select_combobox_element_by_param(self, identifier: str, xpath: str = None,
+    def select_combobox_element_by_param(self, identifier: str, input_field_xpath: str = None,
+                                         list_element_xpaths: set[str] = set(),
                                          data: str = "") -> WebElement:
         """
         use the combobox_parent_finding_method to click on a combobox elements
@@ -726,18 +718,14 @@ class DropDownMethods:
             skip: if true, the method return without any action.
 
         Arguments:
-            data: an element in the dropdown you want to click
-            identifier: the paramteric indetifier in the field_xpath expression
-            xpath: the paramteric parametric representation of the input-field xpath.
-                    It can use only with the identifier argument.
+            input_field_xpath: the combobox's input-field xpath expression
+            data: the element in the dropdown you want to click
+            list_element_xpaths: the parametric representation of the list element's xpath.
         """
 
-        self.fill_field_by_param(xpath=xpath, data=data, identifier=identifier)
+        self.fill_field_by_param(xpath=input_field_xpath, data=data, identifier=identifier)
 
-        if xpath is None:
-            xpath = self._create_field_xpath(identifier)
-
-        list_element = self._find_combobox_list_element(xpath, data)
+        list_element: WebElement = self._find_combobox_list_element(list_element_xpaths, data)
         list_element.click()
         return list_element
 
