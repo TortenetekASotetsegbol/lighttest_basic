@@ -317,7 +317,7 @@ class FieldMethods:
         """
 
         if data is None:
-            raise NoneAction
+            return
         field = self.driver.find_element(by=By.XPATH, value=xpath)
         field.click()
         field.clear()
@@ -344,7 +344,7 @@ class FieldMethods:
             identifier: the paramteric indetifier in the field_xpath expression
         """
         if data is None:
-            raise NoneAction
+            return
         created_field_xpath: str = self._create_field_xpath(identifier)
         if xpath is not None:
             created_field_xpath = xpath.replace(InnerStatics.PARAM.value, identifier)
@@ -673,8 +673,8 @@ class DropDownMethods:
     def _find_combobox_list_element(self, listelement_xpaths: set[str], dropdown_element_text: str):
         if len(listelement_xpaths) > 0:
             parent_webelement_xpaths: set[str] = listelement_xpaths
-        elif len(self.combobox_parent_finding_method_by_xpaths) > 0:
-            parent_webelement_xpaths: set = self.combobox_parent_finding_method_by_xpaths
+        elif len(self.combobox_list_xpaths) > 0:
+            parent_webelement_xpaths: set = self.combobox_list_xpaths
         elif len(MiUsIn.global_combobox_list_xpaths) > 0:
             parent_webelement_xpaths: set = MiUsIn.global_combobox_list_xpaths
 

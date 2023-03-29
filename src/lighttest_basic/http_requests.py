@@ -68,24 +68,24 @@ class Calls(HttpHeaders):
         self.url: str = ""
 
     @collect_call_request_data
-    def post_call(self, uri_path: str, payload: dict, param: str = ""):
+    def post_call(self, uri_path: str, payload: dict, param: str = "", timeout: float = 30):
         self.response = requests.post(url=f'{self.get_base_url()}{uri_path}{param}', headers=self.get_headers(),
-                                      json=payload)
+                                      json=payload, timeout=timeout)
 
     @collect_call_request_data
-    def get_call(self, uri_path: str, payload: dict = {}, param=""):
+    def get_call(self, uri_path: str, payload: dict = {}, param="", timeout: float = 30):
         self.response = requests.get(url=f'{self.get_base_url()}{uri_path}{param}', headers=self.get_headers(),
-                                     json=payload)
+                                     json=payload, timeout=timeout)
 
     @collect_call_request_data
-    def put_call(self, uri_path: str, payload: dict, param: str = ""):
+    def put_call(self, uri_path: str, payload: dict, param: str = "", timeout: float = 30):
         self.response = requests.put(url=f'{self.get_base_url()}{uri_path}{param}', headers=self.get_headers(),
-                                     json=payload)
+                                     json=payload, timeout=timeout)
 
     @collect_call_request_data
-    def delete_call(self, uri_path: str, payload: dict, param: str = ""):
+    def delete_call(self, uri_path: str, payload: dict, param: str = "", timeout: float = 30):
         self.response = requests.delete(
-            url=f'{self.get_base_url()}{uri_path}{param}', headers=self.get_headers(), json=payload)
+            url=f'{self.get_base_url()}{uri_path}{param}', headers=self.get_headers(), json=payload, timeout=timeout)
 
 
 async def post_req_task(uri_path, request: dict, session):
